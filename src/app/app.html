@@ -8,8 +8,8 @@
   }
 
   .container {
-    margin: 0 auto;
-    padding: 2rem;
+    margin: 0;
+    overflow: hidden;
   }
 
   h1 {
@@ -51,10 +51,9 @@
     id="content"
     style="display: flex; flex-direction: column; height: 100%; padding: 10px; flex: 1 1 0;"
   >
-    <div id="title" style="width: 100%; margin-bottom: 20px;">
-      <h1 style="text-align: center; ">Angulask</h1>
-    </div>
-    <app-task-section></app-task-section>
+    <app-task-section [tasks]="myTasks">
+
+    </app-task-section>
   </div>
 </div>
 

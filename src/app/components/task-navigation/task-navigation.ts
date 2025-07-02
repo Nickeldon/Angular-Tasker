@@ -91,7 +91,7 @@ import { CommonModule } from '@angular/common';
         background: #f8f9fa;
         padding: 0;
         border-right: 1px solid #e9ecef;
-        height: 100vh;
+        height: 100%;
         display: flex;
         border-radius: 20px;
       }

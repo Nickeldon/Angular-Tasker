@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "title": "Buy groceries",
+    "status": "In-Progress",
+    "category": "Personal",
+    "description": "Get ingredients for dinner this week",
+    "dueDate": "2025-07-02",
+    "Tags": ["shopping", "food"]
+  },
+  {
+    "id": 2,
+    "title": "Walk the dog",
+    "status": "To-do",
+    "category": "Personal",
+    "description": "Morning walk in the park",
+    "dueDate": "2025-07-02",
+    "Tags": ["exercise", "pet"]
+  },
+  {
+    "id": 3,
+    "title": "Complete project report",
+    "status": "In-Progress",
+    "category": "Work",
+    "description": "Finish quarterly report for management",
+    "dueDate": "2025-07-05",
+    "Tags": ["work", "report"]
+  },
+  {
+    "id": 4,
+    "title": "Schedule dentist appointment",
+    "status": "To-do",
+    "category": "Personal",
+    "description": "Book appointment for teeth cleaning",
+    "dueDate": "2025-07-10",
+    "Tags": ["health", "appointment"]
+  },
+  {
+    "id": 5,
+    "title": "Review code changes",
+    "status": "To-do",
+    "category": "Work",
+    "description": "Review pull requests from team members",
+    "dueDate": "2025-07-03",
+    "Tags": ["code", "review", "work"]
+  },
+  {
+    "id": 6,
+    "title": "Plan weekend trip",
+    "status": "To-do",
+    "category": "Personal",
+    "description": "Research destinations and book accommodation",
+    "dueDate": "2025-07-08",
+    "Tags": ["travel", "planning", "weekend"]
+  },
+  {
+    "id": 7,
+    "title": "Fix urgent bug",
+    "status": "In-Progress",
+    "category": "Urgent",
+    "description": "Critical bug affecting user login",
+    "dueDate": "2025-07-02",
+    "Tags": ["urgent", "bug", "login"]
+  },
+  {
+    "id": 8,
+    "title": "Organize workspace",
+    "status": "To-do",
+    "category": "Other",
+    "description": "Clean and organize desk area",
+    "dueDate": "2025-07-04",
+    "Tags": ["organization", "workspace"]
+  }
+]

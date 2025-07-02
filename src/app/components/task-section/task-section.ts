@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,55 +7,84 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { TaskComponent, Task, Status, Category } from '../task/task';
+import { TaskService } from '../../services/task.service';
 
 @Component({
-  selector: "app-task-section",
+  selector: 'app-task-section',
   template: `
     <div class="task-section">
+      <div class="section-select-day">
+        <h1 style="display: flex; align-items: center; gap: 20px;">
+          <mat-icon>calendar_today</mat-icon>
+          {{ selectDay }}
+        <!-- {{ (selectDay === 'Today' ? 'Today\'s Tasks' : selectDay + ' Tasks') }} -->
+        </h1>
+      </div>
       <div class="section-header">
         <h2>Task List</h2>
-        <button mat-raised-button color="primary" (click)="toggleAddForm()" class="add-btn">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="toggleAddForm()"
+          class="add-btn"
+        >
           <mat-icon>add</mat-icon>
           Add New Task
         </button>
       </div>
 
-      <!-- Add New Task Form -->
-      <div class="add-task-form" *ngIf="showAddForm">
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Task Title</mat-label>
-            <input matInput [(ngModel)]="newTask.title" placeholder="Enter task title">
-          </mat-form-field>
+      <!-- Add New Task Form Container -->
+      <div class="add-task-form-container" [class.expanded]="showAddForm">
+        <div class="add-task-form">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Task Title</mat-label>
+              <input
+                matInput
+                [(ngModel)]="newTask.title"
+                placeholder="Enter task title"
+              />
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Category</mat-label>
-            <mat-select [(ngModel)]="newTask.category">
-              <mat-option [value]="categoryEnum.Work">Work</mat-option>
-              <mat-option [value]="categoryEnum.Personal">Personal</mat-option>
-              <mat-option [value]="categoryEnum.Urgent">Urgent</mat-option>
-              <mat-option [value]="categoryEnum.Other">Other</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Category</mat-label>
+              <mat-select [(ngModel)]="newTask.category">
+                <mat-option [value]="categoryEnum.Work">Work</mat-option>
+                <mat-option [value]="categoryEnum.Personal">Personal</mat-option>
+                <mat-option [value]="categoryEnum.Urgent">Urgent</mat-option>
+                <mat-option [value]="categoryEnum.Other">Other</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Description</mat-label>
-            <textarea matInput [(ngModel)]="newTask.description" placeholder="Task description" rows="2"></textarea>
-          </mat-form-field>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                [(ngModel)]="newTask.description"
+                placeholder="Task description"
+                rows="2"
+              ></textarea>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Due Date</mat-label>
-            <input matInput type="date" [(ngModel)]="newTask.dueDate">
-          </mat-form-field>
-        </div>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Due Date</mat-label>
+              <input matInput type="date" [(ngModel)]="newTask.dueDate" />
+            </mat-form-field>
+          </div>
 
-        <div class="form-actions">
-          <button mat-button (click)="cancelAdd()">Cancel</button>
-          <button mat-raised-button color="primary" (click)="addTask()" [disabled]="!newTask.title">
-            Add Task
-          </button>
+          <div class="form-actions">
+            <button mat-button (click)="cancelAdd()">Cancel</button>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="addTask()"
+              [disabled]="!newTask.title"
+            >
+              Add Task
+            </button>
+          </div>
         </div>
       </div>
 
@@ -70,13 +99,23 @@ import { TaskComponent, Task, Status, Category } from '../task/task';
           *ngFor="let task of tasks"
           [task]="task"
           (taskDeleted)="deleteTask($event)"
-          (taskStatusChanged)="updateTaskStatus($event)">
+          (taskStatusChanged)="updateTaskStatus($event)"
+          (taskArchived)="archiveTask($event)"
+          (taskUnarchived)="unarchiveTask($event)"
+        >
         </app-task>
       </div>
     </div>
   `,
   styles: [
     `
+
+      .section-select-day {
+        justify-content: center;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+
       .task-section {
         padding: 20px;
         background: white;
@@ -106,11 +145,22 @@ import { TaskComponent, Task, Status, Category } from '../task/task';
         gap: 8px;
       }
 
+      .add-task-form-container {
+        height: 0;
+        overflow: hidden;
+        transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        margin-bottom: 0;
+      }
+
+      .add-task-form-container.expanded {
+        height: auto;
+        margin-bottom: 20px;
+      }
+
       .add-task-form {
         background: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
-        margin-bottom: 20px;
         border: 1px solid #e9ecef;
       }
 
@@ -154,7 +204,7 @@ import { TaskComponent, Task, Status, Category } from '../task/task';
         font-size: 16px;
         margin: 0;
       }
-    `
+    `,
   ],
   standalone: true,
   imports: [
@@ -165,13 +215,17 @@ import { TaskComponent, Task, Status, Category } from '../task/task';
     MatFormFieldModule,
     MatSelectModule,
     FormsModule,
-    TaskComponent
-  ]
+    TaskComponent,
+  ],
 })
 export class TaskSectionComponent {
+  @Input() tasks: Task[] = [];
+
   showAddForm = false;
   categoryEnum = Category;
   statusEnum = Status;
+
+  constructor(private taskService: TaskService) {}
 
   newTask: Partial<Task> = {
     title: '',
@@ -179,38 +233,11 @@ export class TaskSectionComponent {
     category: Category.Personal,
     dueDate: new Date().toISOString().split('T')[0],
     Tags: [],
-    status: Status['To-do']
+    status: Status['To-do'],
+    archived: false,
   };
 
-  tasks: Task[] = [
-    {
-      id: 1,
-      title: 'Buy groceries',
-      status: Status['In-Progress'],
-      category: Category.Personal,
-      description: 'Get ingredients for dinner this week',
-      dueDate: '2025-07-02',
-      Tags: ['shopping', 'food'],
-    },
-    {
-      id: 2,
-      title: 'Walk the dog',
-      status: Status['To-do'],
-      category: Category.Personal,
-      description: 'Morning walk in the park',
-      dueDate: '2025-07-02',
-      Tags: ['exercise', 'pet'],
-    },
-    {
-      id: 3,
-      title: 'Complete project report',
-      status: Status['In-Progress'],
-      category: Category.Work,
-      description: 'Finish quarterly report for management',
-      dueDate: '2025-07-05',
-      Tags: ['work', 'report'],
-    },
-  ];
+  selectDay: string | "Today" = 'Today';
 
   toggleAddForm() {
     this.showAddForm = !this.showAddForm;
@@ -222,16 +249,17 @@ export class TaskSectionComponent {
   addTask() {
     if (this.newTask.title?.trim()) {
       const task: Task = {
-        id: this.generateId(),
+        id: this.taskService.generateId(),
         title: this.newTask.title,
         description: this.newTask.description || '',
         status: this.newTask.status || Status['To-do'],
         category: this.newTask.category || Category.Personal,
         dueDate: this.newTask.dueDate || new Date().toISOString().split('T')[0],
-        Tags: this.newTask.Tags || []
+        Tags: this.newTask.Tags || [],
+        archived: false, // New tasks are never archived
       };
 
-      this.tasks.unshift(task); // Add to beginning of list
+      this.taskService.addTask(task);
       this.resetNewTask();
       this.showAddForm = false;
     }
@@ -243,18 +271,19 @@ export class TaskSectionComponent {
   }
 
   deleteTask(taskId: number) {
-    this.tasks = this.tasks.filter(task => task.id !== taskId);
+    this.taskService.deleteTask(taskId);
   }
 
-  updateTaskStatus(event: {id: number, status: Status}) {
-    const task = this.tasks.find(t => t.id === event.id);
-    if (task) {
-      task.status = event.status;
-    }
+  updateTaskStatus(event: { id: number; status: Status }) {
+    this.taskService.updateTaskStatus(event.id, event.status);
   }
 
-  private generateId(): number {
-    return Math.max(...this.tasks.map(t => t.id), 0) + 1;
+  archiveTask(taskId: number) {
+    this.taskService.archiveTask(taskId);
+  }
+
+  unarchiveTask(taskId: number) {
+    this.taskService.unarchiveTask(taskId);
   }
 
   private resetNewTask() {
@@ -264,7 +293,8 @@ export class TaskSectionComponent {
       category: Category.Personal,
       dueDate: new Date().toISOString().split('T')[0],
       Tags: [],
-      status: Status['To-do']
+      status: Status['To-do'],
+      archived: false,
     };
   }
 }
