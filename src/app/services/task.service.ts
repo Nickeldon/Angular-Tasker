@@ -7,7 +7,7 @@ import { Task, Status, Category } from '../components/task/task';
 })
 export class TaskService {
   private tasksSubject = new BehaviorSubject<Task[]>([]);
-  private hasInitialized = false;
+  // private hasInitialized = false;
   private readonly STORAGE_KEY = 'angular-tasker-tasks';
 
   // Observable for components to subscribe to
@@ -23,14 +23,14 @@ export class TaskService {
       const storedTasks = this.loadTasksFromLocalStorage();
       if (storedTasks.length > 0) {
         this.tasksSubject.next(storedTasks);
-        this.hasInitialized = true;
+        // this.hasInitialized = true;
       } else {
         // No stored tasks, load default tasks
-        this.loadDefaultTasks();
+        // this.loadDefaultTasks();
       }
     } catch (error) {
       console.error('Error loading tasks from storage:', error);
-      this.loadDefaultTasks();
+      // this.loadDefaultTasks();
     }
   }
 
@@ -79,7 +79,7 @@ export class TaskService {
       },
     ];
     this.tasksSubject.next(defaultTasks);
-    this.hasInitialized = true;
+    // this.hasInitialized = true;
     // Save default tasks to localStorage
     this.saveTasksToLocalStorage(defaultTasks);
   }
@@ -360,7 +360,7 @@ export class TaskService {
 
   // Reset to default data
   resetToOriginalData(): void {
-    this.hasInitialized = false;
+    // this.hasInitialized = false;
     localStorage.removeItem(this.STORAGE_KEY);
     this.loadTasksFromStorage();
   }

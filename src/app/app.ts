@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TaskSectionComponent } from './components/task-section/task-section';
-import { TaskNavigationComponent } from './components/task-navigation/task-navigation';
+import { TaskSectionComponent } from './components/task-section/task.section';
+import { TaskNavigationComponent } from './components/task-navigation/task.navigation';
 import { Task, Category } from './components/task/task';
 import { TaskService } from './services/task.service';
 
@@ -23,6 +23,7 @@ export class App implements OnInit {
 
   // When Angular loads the page data + assets
   ngOnInit() {
+    console.log(window.localStorage)
     // Filter the tasks based on the current filter. As there are no config.json files yet, it will always default to showing all active tasks
     this.applyCurrentFilter();
 
@@ -48,7 +49,8 @@ export class App implements OnInit {
       // If the app was loaded for the first time or no filter is applied or no config.json file
       // Default: show all active tasks
       filteredTasks = this.taskService.getActiveTasks();
-    } else { // Valid filter is applied
+    } else {
+      // Valid filter is applied
 
       // Could be simplified...?
       switch (this.currentFilter.type) {

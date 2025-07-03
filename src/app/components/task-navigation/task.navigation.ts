@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../services/task.service';
 import { Category, Status } from '../task/task';
+import { TaskSettingsComponent } from '../task-settings/task.settings';
 
 @Component({
   selector: 'app-task-navigation',
@@ -94,7 +95,7 @@ import { Category, Status } from '../task/task';
 
         <!-- Bottom Section -->
         <div class="sidebar-bottom">
-          <div class="nav-item">
+          <div class="nav-item" (click)="onSettingClick()">
             <mat-icon class="nav-icon">settings</mat-icon>
             <span class="nav-label">Settings</span>
           </div>
@@ -105,6 +106,12 @@ import { Category, Status } from '../task/task';
         </div>
       </mat-sidenav>
       <mat-sidenav-content>
+        <!-- Settings Component Overlay -->
+        <div class="settings-overlay" *ngIf="showSettings" (click)="closeSettings()">
+          <div class="settings-wrapper" (click)="$event.stopPropagation()">
+            <app-task-settings (close)="closeSettings()"></app-task-settings>
+          </div>
+        </div>
         <ng-content></ng-content>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -359,6 +366,26 @@ import { Category, Status } from '../task/task';
       mat-sidenav-container {
         height: 100vh;
       }
+
+      .settings-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+
+      .settings-wrapper {
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: auto;
+      }
     `,
   ],
   standalone: true,
@@ -369,6 +396,7 @@ import { Category, Status } from '../task/task';
     MatSidenavContent,
     MatIcon,
     FormsModule,
+    TaskSettingsComponent,
   ],
 })
 export class TaskNavigationComponent implements OnInit {
@@ -376,6 +404,7 @@ export class TaskNavigationComponent implements OnInit {
 
   searchTerm = '';
   activeFilter: { type: string; value: any } | null = null;
+  showSettings = false;
 
   taskItems = [
     {
@@ -472,6 +501,13 @@ export class TaskNavigationComponent implements OnInit {
   onNavigationClick(filter: string) {
     this.activeFilter = { type: 'navigation', value: filter };
     this.filterChanged.emit({ type: 'navigation', value: filter });
+  }
+  onSettingClick() {
+    this.showSettings = true;
+  }
+
+  closeSettings() {
+    this.showSettings = false;
   }
 
   onCategoryFilter(category: Category) {
