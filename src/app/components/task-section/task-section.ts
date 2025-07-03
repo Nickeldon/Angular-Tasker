@@ -380,7 +380,7 @@ export class TaskSectionComponent {
 
     <div mat-dialog-actions align="end">
       <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!task.title?.trim()">
+      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!task.title.trim()">
         Save Changes
       </button>
     </div>

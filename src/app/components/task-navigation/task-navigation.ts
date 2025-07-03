@@ -26,7 +26,12 @@ import { Category, Status } from '../task/task';
         <div class="search-section">
           <div class="search-input">
             <mat-icon class="search-icon">search</mat-icon>
-            <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="onSearch()" />
+            <input
+              type="text"
+              placeholder="Search"
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()"
+            />
           </div>
         </div>
 
@@ -34,10 +39,13 @@ import { Category, Status } from '../task/task';
         <div class="nav-section">
           <h3 class="section-title">TASKS</h3>
           <ul class="nav-list">
-            <li class="nav-item"
-                [class.active]="isActiveFilter('navigation', task.filter)"
-                *ngFor="let task of taskItems"
-                (click)="onNavigationClick(task.filter)">
+            <li
+              class="nav-item"
+              [class.active]="isActiveFilter('navigation', task.filter)"
+              *ngFor="let task of taskItems"
+              (click)="onNavigationClick(task.filter)"
+              [class.disabled]="task.disabled"
+            >
               <mat-icon class="nav-icon">{{ task.icon }}</mat-icon>
               <span class="nav-label">{{ task.label }}</span>
               <span class="nav-count" *ngIf="task.count">{{ task.count }}</span>
@@ -49,10 +57,12 @@ import { Category, Status } from '../task/task';
         <div class="nav-section">
           <h3 class="section-title">LISTS</h3>
           <ul class="nav-list">
-            <li class="nav-item"
-                [class.active]="isActiveFilter('category', list.category)"
-                *ngFor="let list of listItems"
-                (click)="onCategoryFilter(list.category)">
+            <li
+              class="nav-item"
+              [class.active]="isActiveFilter('category', list.category)"
+              *ngFor="let list of listItems"
+              (click)="onCategoryFilter(list.category)"
+            >
               <div
                 class="color-indicator"
                 [style.background-color]="list.color"
@@ -71,10 +81,13 @@ import { Category, Status } from '../task/task';
         <div class="nav-section">
           <h3 class="section-title">TAGS</h3>
           <div class="tags-container">
-            <span class="tag"
-                  [class.active]="isActiveFilter('tag', tag)"
-                  *ngFor="let tag of tags"
-                  (click)="onTagFilter(tag)">{{ tag }}</span>
+            <span
+              class="tag"
+              [class.active]="isActiveFilter('tag', tag)"
+              *ngFor="let tag of tags"
+              (click)="onTagFilter(tag)"
+              >{{ tag }}</span
+            >
             <span class="add-tag">+ Add Tag</span>
           </div>
         </div>
@@ -359,20 +372,47 @@ import { Category, Status } from '../task/task';
   ],
 })
 export class TaskNavigationComponent implements OnInit {
-  @Output() filterChanged = new EventEmitter<{type: string, value: any}>();
+  @Output() filterChanged = new EventEmitter<{ type: string; value: any }>();
 
   searchTerm = '';
-  activeFilter: {type: string, value: any} | null = null;
+  activeFilter: { type: string; value: any } | null = null;
 
   taskItems = [
-    { icon: 'schedule', label: 'Upcoming', count: 0, filter: 'upcoming' },
-    { icon: 'today', label: 'Today', count: 0, filter: 'today' },
-    { icon: 'calendar_today', label: 'Calendar', filter: 'calendar' },
-    { icon: 'push_pin', label: 'Sticky Wall', filter: 'sticky' },
+    {
+      icon: 'schedule',
+      label: 'Upcoming',
+      count: 0,
+      filter: 'upcoming',
+      disabled: false,
+    },
+    {
+      icon: 'today',
+      label: 'Today',
+      count: 0,
+      filter: 'today',
+      disabled: false,
+    },
+    {
+      icon: 'calendar_today',
+      label: 'Calendar',
+      filter: 'calendar',
+      disabled: true,
+    },
+    {
+      icon: 'push_pin',
+      label: 'Sticky Wall',
+      filter: 'sticky',
+      disabled: true,
+    },
   ];
 
   listItems = [
-    { color: '#dc3545', label: 'Personal', count: 0, category: Category.Personal },
+    {
+      color: '#dc3545',
+      label: 'Personal',
+      count: 0,
+      category: Category.Personal,
+    },
     { color: '#0d6efd', label: 'Work', count: 0, category: Category.Work },
     { color: '#ffc107', label: 'Urgent', count: 0, category: Category.Urgent },
     { color: '#6c757d', label: 'Other', count: 0, category: Category.Other },
@@ -402,19 +442,27 @@ export class TaskNavigationComponent implements OnInit {
     this.taskItems[1].count = todayTasks.length; // Today
 
     // Update category counts
-    this.listItems[0].count = this.taskService.getTasksByCategory(Category.Personal).length;
-    this.listItems[1].count = this.taskService.getTasksByCategory(Category.Work).length;
-    this.listItems[2].count = this.taskService.getTasksByCategory(Category.Urgent).length;
-    this.listItems[3].count = this.taskService.getTasksByCategory(Category.Other).length;
+    this.listItems[0].count = this.taskService.getTasksByCategory(
+      Category.Personal
+    ).length;
+    this.listItems[1].count = this.taskService.getTasksByCategory(
+      Category.Work
+    ).length;
+    this.listItems[2].count = this.taskService.getTasksByCategory(
+      Category.Urgent
+    ).length;
+    this.listItems[3].count = this.taskService.getTasksByCategory(
+      Category.Other
+    ).length;
   }
 
   private updateTags() {
     const allTasks = this.taskService.getActiveTasks();
     const tagSet = new Set<string>();
 
-    allTasks.forEach(task => {
+    allTasks.forEach((task) => {
       if (task.Tags) {
-        task.Tags.forEach(tag => tagSet.add(tag));
+        task.Tags.forEach((tag) => tagSet.add(tag));
       }
     });
 
@@ -422,31 +470,36 @@ export class TaskNavigationComponent implements OnInit {
   }
 
   onNavigationClick(filter: string) {
-    this.activeFilter = {type: 'navigation', value: filter};
-    this.filterChanged.emit({type: 'navigation', value: filter});
+    this.activeFilter = { type: 'navigation', value: filter };
+    this.filterChanged.emit({ type: 'navigation', value: filter });
   }
 
   onCategoryFilter(category: Category) {
-    this.activeFilter = {type: 'category', value: category};
-    this.filterChanged.emit({type: 'category', value: category});
+    this.activeFilter = { type: 'category', value: category };
+    this.filterChanged.emit({ type: 'category', value: category });
   }
 
   onTagFilter(tag: string) {
-    this.activeFilter = {type: 'tag', value: tag};
-    this.filterChanged.emit({type: 'tag', value: tag});
+    this.activeFilter = { type: 'tag', value: tag };
+    this.filterChanged.emit({ type: 'tag', value: tag });
   }
 
   onSearch() {
     if (this.searchTerm.trim()) {
-      this.activeFilter = {type: 'search', value: this.searchTerm.trim()};
-      this.filterChanged.emit({type: 'search', value: this.searchTerm.trim()});
+      this.activeFilter = { type: 'search', value: this.searchTerm.trim() };
+      this.filterChanged.emit({
+        type: 'search',
+        value: this.searchTerm.trim(),
+      });
     } else {
       this.activeFilter = null;
-      this.filterChanged.emit({type: 'clear', value: null});
+      this.filterChanged.emit({ type: 'clear', value: null });
     }
   }
 
   isActiveFilter(type: string, value: any): boolean {
-    return this.activeFilter?.type === type && this.activeFilter?.value === value;
+    return (
+      this.activeFilter?.type === type && this.activeFilter?.value === value
+    );
   }
 }

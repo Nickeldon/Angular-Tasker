@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+// Enum and interface definitions
 export enum Status {
   'To-do',
   'In-Progress',
@@ -29,34 +30,63 @@ export interface Task {
   archived: boolean;
 }
 
+// TaskComponent: Represents a single task item with its details and actions
 @Component({
-  selector: 'app-task',
+  selector: 'app-task', // Will be referenced as the enclosed <app-task> object
   template: `
     <div class="task-item" [class.archived]="task.archived">
+      <!-- Is the task "archived" -->
+
+      <!-- Verify if checkbox element from Material is already checked or marked as complete in the JSON -->
       <mat-checkbox
         [checked]="task.status === statusEnum.Complete"
-        (change)="onStatusChange($event)">
+        (change)="onStatusChange($event)"
+      >
       </mat-checkbox>
       <div class="task-content" (click)="onEdit()">
         <div class="task-title">{{ task.title }}</div>
         <div class="task-meta">
-          <span class="task-category">{{ getCategoryName(task.category) }}</span>
+          <span class="task-category">{{
+            getCategoryName(task.category)
+          }}</span>
           <span class="task-status">{{ getStatusName(task.status) }}</span>
           <span class="task-due-date">Due: {{ task.dueDate }}</span>
           <span class="task-archived" *ngIf="task.archived">ARCHIVED</span>
         </div>
       </div>
       <div class="task-actions">
-        <button mat-icon-button class="edit-btn" (click)="onEdit()" title="Edit task">
+        <button
+          mat-icon-button
+          class="edit-btn"
+          (click)="onEdit()"
+          title="Edit task"
+        >
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button class="archive-btn" (click)="onArchive()" *ngIf="!task.archived" title="Archive task">
+        <button
+          mat-icon-button
+          class="archive-btn"
+          (click)="onArchive()"
+          *ngIf="!task.archived"
+          title="Archive task"
+        >
           <mat-icon>archive</mat-icon>
         </button>
-        <button mat-icon-button class="unarchive-btn" (click)="onUnarchive()" *ngIf="task.archived" title="Unarchive task">
+        <button
+          mat-icon-button
+          class="unarchive-btn"
+          (click)="onUnarchive()"
+          *ngIf="task.archived"
+          title="Unarchive task"
+        >
           <mat-icon>unarchive</mat-icon>
         </button>
-        <button mat-icon-button class="delete-btn" (click)="onDelete()" title="Delete task">
+        <button
+          mat-icon-button
+          class="delete-btn"
+          (click)="onDelete()"
+          title="Delete task"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       </div>
@@ -165,13 +195,24 @@ export interface Task {
     `,
   ],
   standalone: true,
-  imports: [MatCheckboxModule, MatButtonModule, MatIconModule, FormsModule, CommonModule],
+  imports: [
+    MatCheckboxModule,
+    MatButtonModule,
+    MatIconModule,
+    FormsModule,
+    CommonModule,
+  ],
 })
 
+// **The following class was done with the help of AI**
+// Represents a single task item with its details and actions
 export class TaskComponent {
   @Input() task!: Task;
   @Output() taskDeleted = new EventEmitter<number>();
-  @Output() taskStatusChanged = new EventEmitter<{id: number, status: Status}>();
+  @Output() taskStatusChanged = new EventEmitter<{
+    id: number;
+    status: Status;
+  }>();
   @Output() taskArchived = new EventEmitter<number>();
   @Output() taskUnarchived = new EventEmitter<number>();
   @Output() taskEditRequested = new EventEmitter<Task>();
@@ -180,7 +221,7 @@ export class TaskComponent {
 
   onStatusChange(event: any) {
     const newStatus = event.checked ? Status.Complete : Status['To-do'];
-    this.taskStatusChanged.emit({id: this.task.id, status: newStatus});
+    this.taskStatusChanged.emit({ id: this.task.id, status: newStatus });
   }
 
   onDelete() {
