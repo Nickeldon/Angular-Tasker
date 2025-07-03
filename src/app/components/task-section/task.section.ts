@@ -50,10 +50,10 @@ import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angu
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>Category</mat-label>
               <mat-select [(ngModel)]="newTask.category">
-                <mat-option [value]="categoryEnum.Work">Work</mat-option>
-                <mat-option [value]="categoryEnum.Personal">Personal</mat-option>
-                <mat-option [value]="categoryEnum.Urgent">Urgent</mat-option>
-                <mat-option [value]="categoryEnum.Other">Other</mat-option>
+                <mat-option [value]="Category.Work">Work</mat-option>
+                <mat-option [value]="Category.Personal">Personal</mat-option>
+                <mat-option [value]="Category.Urgent">Urgent</mat-option>
+                <mat-option [value]="Category.Other">Other</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -224,7 +224,7 @@ export class TaskSectionComponent {
   @Input() tasks: Task[] = [];
 
   showAddForm = false;
-  categoryEnum = Category;
+  Category = Category;
   statusEnum = Status;
 
   constructor(private taskService: TaskService, private dialog: MatDialog) {}
@@ -232,7 +232,7 @@ export class TaskSectionComponent {
   newTask: Partial<Task> = {
     title: '',
     description: '',
-    category: Category.Personal,
+    category: undefined,
     dueDate: new Date().toISOString().split('T')[0],
     Tags: [],
     status: Status['To-do'],
@@ -250,6 +250,8 @@ export class TaskSectionComponent {
 
   addTask() {
     if (this.newTask.title?.trim()) {
+        console.log('Adding task:', this.newTask);
+        console.log(Category)
       const task: Task = {
         id: this.taskService.generateId(),
         title: this.newTask.title,
@@ -334,10 +336,10 @@ export class TaskSectionComponent {
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Category</mat-label>
           <mat-select [(ngModel)]="task.category">
-            <mat-option [value]="categoryEnum.Work">Work</mat-option>
-            <mat-option [value]="categoryEnum.Personal">Personal</mat-option>
-            <mat-option [value]="categoryEnum.Urgent">Urgent</mat-option>
-            <mat-option [value]="categoryEnum.Other">Other</mat-option>
+            <mat-option [value]="Category.Work">Work</mat-option>
+            <mat-option [value]="Category.Personal">Personal</mat-option>
+            <mat-option [value]="Category.Urgent">Urgent</mat-option>
+            <mat-option [value]="Category.Other">Other</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -412,7 +414,7 @@ export class TaskSectionComponent {
 export class TaskEditDialogComponent {
   task: Task;
   tagsString: string;
-  categoryEnum = Category;
+  Category = Category;
   statusEnum = Status;
 
   constructor(

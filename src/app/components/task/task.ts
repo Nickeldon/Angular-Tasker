@@ -13,10 +13,10 @@ export enum Status {
 }
 
 export enum Category {
-  'Work',
   'Personal',
+  'Work',
   'Urgent',
-  'Other',
+  'Other'
 }
 
 export interface Task {
