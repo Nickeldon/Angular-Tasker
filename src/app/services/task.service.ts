@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { Task, Status, Category } from '../components/task/task';
 
 @Injectable({
@@ -9,139 +8,29 @@ import { Task, Status, Category } from '../components/task/task';
 export class TaskService {
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   private hasInitialized = false;
-  private readonly API_BASE_URL = 'http://localhost:3001/api';
+  private readonly STORAGE_KEY = 'angular-tasker-tasks';
 
   // Observable for components to subscribe to
   public tasks$ = this.tasksSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    this.loadTasksFromJson();
+  constructor() {
+    this.loadTasksFromStorage();
   }
 
-  // Load tasks from JSON file
-  private loadTasksFromJson(): void {
-    // First try to load from backend API
-    this.loadTasksFromBackend()
-      .then((tasks) => {
-        this.tasksSubject.next(tasks);
+  // Load tasks from localStorage or initialize with defaults
+  private loadTasksFromStorage(): void {
+    try {
+      const storedTasks = this.loadTasksFromLocalStorage();
+      if (storedTasks.length > 0) {
+        this.tasksSubject.next(storedTasks);
         this.hasInitialized = true;
-        // Save to localStorage for fast future access
-        this.saveTasksToLocalStorage(tasks);
-      })
-      .catch((error) => {
-        console.warn('Backend not available, trying localStorage:', error);
-        // Fallback to localStorage if backend is not available
-        const localTasks = this.loadTasksFromLocalStorage();
-        if (localTasks.length > 0) {
-          this.tasksSubject.next(localTasks);
-          this.hasInitialized = true;
-          return;
-        }
-
-        // If no localStorage data, try importing from assets as last resort
-        import('./../../assets/tasks.json')
-          .then((json) => {
-            const jsonTasks = json.default || json;
-            const tasks: Task[] = jsonTasks.map((jsonTask: any) => ({
-              id: jsonTask.id,
-              title: jsonTask.title,
-              description: jsonTask.description,
-              status: this.mapStringToStatus(jsonTask.status),
-              category: this.mapStringToCategory(jsonTask.category),
-              dueDate: jsonTask.dueDate,
-              Tags: jsonTask.Tags || [],
-              archived: jsonTask.archived || false,
-            }));
-            this.tasksSubject.next(tasks);
-            this.hasInitialized = true;
-            // Save to localStorage for fast future access
-            this.saveTasksToLocalStorage(tasks);
-          })
-          .catch((assetError) => {
-            console.error('Error loading tasks from assets:', assetError);
-            // Final fallback to default tasks
-            this.loadDefaultTasks();
-          });
-      });
-  }
-
-  // Load tasks from backend API
-  private loadTasksFromBackend(): Promise<Task[]> {
-    return new Promise((resolve, reject) => {
-      this.http.get<any[]>(`${this.API_BASE_URL}/tasks`).subscribe({
-        next: (jsonTasks) => {
-          const tasks: Task[] = jsonTasks.map((jsonTask: any) => ({
-            id: jsonTask.id,
-            title: jsonTask.title,
-            description: jsonTask.description,
-            status: this.mapStringToStatus(jsonTask.status),
-            category: this.mapStringToCategory(jsonTask.category),
-            dueDate: jsonTask.dueDate,
-            Tags: jsonTask.Tags || [],
-            archived: jsonTask.archived || false,
-          }));
-          resolve(tasks);
-        },
-        error: (error) => {
-          reject(error);
-        }
-      });
-    });
-  }
-
-  // Save tasks to backend API
-  private saveTasksToBackend(tasks: Task[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // Convert tasks to JSON format for backend
-      const jsonTasks = tasks.map(task => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: this.getStatusString(task.status),
-        category: this.getCategoryString(task.category),
-        dueDate: task.dueDate,
-        Tags: task.Tags || [],
-        archived: task.archived || false
-      }));
-
-      this.http.post(`${this.API_BASE_URL}/tasks`, jsonTasks).subscribe({
-        next: () => {
-          resolve();
-        },
-        error: (error) => {
-          reject(error);
-        }
-      });
-    });
-  }
-
-  // Map string status to enum
-  private mapStringToStatus(statusString: string): Status {
-    switch (statusString) {
-      case 'To-do':
-        return Status['To-do'];
-      case 'In-Progress':
-        return Status['In-Progress'];
-      case 'Complete':
-        return Status['Complete'];
-      default:
-        return Status['To-do'];
-    }
-  }
-
-  // Map string category to enum
-  private mapStringToCategory(categoryString: string): Category {
-    switch (categoryString) {
-      case 'Work':
-        return Category.Work;
-      case 'Personal':
-        return Category.Personal;
-      case 'Urgent':
-        return Category.Urgent;
-      case 'Other':
-        return Category.Other;
-      default:
-        return Category.Personal;
+      } else {
+        // No stored tasks, load default tasks
+        this.loadDefaultTasks();
+      }
+    } catch (error) {
+      console.error('Error loading tasks from storage:', error);
+      this.loadDefaultTasks();
     }
   }
 
@@ -191,7 +80,7 @@ export class TaskService {
     ];
     this.tasksSubject.next(defaultTasks);
     this.hasInitialized = true;
-    // Save default tasks to localStorage for future fast access
+    // Save default tasks to localStorage
     this.saveTasksToLocalStorage(defaultTasks);
   }
 
@@ -200,9 +89,9 @@ export class TaskService {
     return this.tasksSubject.value;
   }
 
-  // Reload tasks from JSON file
+  // Reload tasks from localStorage
   reloadTasksFromJson(): Observable<Task[]> {
-    this.loadTasksFromJson();
+    this.loadTasksFromStorage();
     return this.tasks$;
   }
 
@@ -219,66 +108,68 @@ export class TaskService {
   // Update tasks view - this is your UpdateTasksView method
   updateTasksView(newTasks: Task[]): void {
     this.tasksSubject.next(newTasks);
-    // Save to localStorage for fast filtering and access
+    // Save to localStorage only
     this.saveTasksToLocalStorage(newTasks);
-    // Save to backend API (or fallback to auto-download)
-    this.saveTasksToBackendOrFallback(newTasks);
   }
 
-  // Save tasks to backend API with fallback to download
-  private saveTasksToBackendOrFallback(tasks: Task[]): void {
-    // Only save if this is a significant change (not initial load)
-    if (this.hasInitialized) {
-      this.saveTasksToBackend(tasks)
-        .then(() => {
-          console.log('Tasks successfully saved to backend API');
-        })
-        .catch((error) => {
-          console.warn('Backend save failed, falling back to download:', error);
-          // Fallback to auto-download if backend is not available
-          this.autoSaveToJSON(tasks);
-        });
-    }
-  }
-
-  // Auto-save tasks to JSON file (downloads the file)
-  private autoSaveToJSON(tasks: Task[]): void {
+  // Save tasks to localStorage
+  private saveTasksToLocalStorage(tasks: Task[]): void {
     try {
-      // Convert tasks back to JSON format for saving
-      const jsonTasks = tasks.map(task => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: this.getStatusString(task.status),
-        category: this.getCategoryString(task.category),
-        dueDate: task.dueDate,
-        Tags: task.Tags || [],
-        archived: task.archived || false
-      }));
-
-      const dataStr = JSON.stringify(jsonTasks, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-
-      // Create a timestamp for the filename
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(dataBlob);
-      link.download = `tasks-updated-${timestamp}.json`;
-
-      // Only auto-download if this is a significant change (not initial load)
-      if (this.hasInitialized) {
-        link.click();
-        console.log('Tasks JSON file downloaded with latest changes');
-      }
-
-      URL.revokeObjectURL(link.href);
+      const serializedTasks = JSON.stringify(tasks);
+      localStorage.setItem(this.STORAGE_KEY, serializedTasks);
     } catch (error) {
-      console.error('Error auto-saving tasks to JSON:', error);
+      console.error('Error saving tasks to localStorage:', error);
     }
   }
 
-  // Convert enum values back to strings for JSON export
+  // Load tasks from localStorage
+  private loadTasksFromLocalStorage(): Task[] {
+    try {
+      const serializedTasks = localStorage.getItem(this.STORAGE_KEY);
+      if (serializedTasks) {
+        const tasks = JSON.parse(serializedTasks);
+        // Ensure proper enum mapping when loading from localStorage
+        return tasks.map((task: any) => ({
+          ...task,
+          status: typeof task.status === 'string' ? this.mapStringToStatus(task.status) : task.status,
+          category: typeof task.category === 'string' ? this.mapStringToCategory(task.category) : task.category,
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading tasks from localStorage:', error);
+    }
+    return [];
+  }
+
+  // Map string status to enum
+  private mapStringToStatus(statusString: string): Status {
+    switch (statusString) {
+      case 'To-do':
+        return Status['To-do'];
+      case 'In-Progress':
+        return Status['In-Progress'];
+      case 'Complete':
+        return Status['Complete'];
+      default:
+        return Status['To-do'];
+    }
+  }
+
+  // Map string category to enum
+  private mapStringToCategory(categoryString: string): Category {
+    switch (categoryString) {
+      case 'Work':
+        return Category.Work;
+      case 'Personal':
+        return Category.Personal;
+      case 'Urgent':
+        return Category.Urgent;
+      case 'Other':
+        return Category.Other;
+      default:
+        return Category.Personal;
+    }
+  }
   private getStatusString(status: Status): string {
     switch (status) {
       case Status['To-do']: return 'To-do';
@@ -296,35 +187,6 @@ export class TaskService {
       case Category.Other: return 'Other';
       default: return 'Personal';
     }
-  }
-
-  // Save tasks to localStorage for fast filtering and access
-  private saveTasksToLocalStorage(tasks: Task[]): void {
-    try {
-      const serializedTasks = JSON.stringify(tasks);
-      localStorage.setItem('angular-tasker-tasks', serializedTasks);
-    } catch (error) {
-      console.error('Error saving tasks to localStorage:', error);
-    }
-  }
-
-  // Load tasks from localStorage for fast access
-  private loadTasksFromLocalStorage(): Task[] {
-    try {
-      const serializedTasks = localStorage.getItem('angular-tasker-tasks');
-      if (serializedTasks) {
-        const tasks = JSON.parse(serializedTasks);
-        // Ensure proper enum mapping when loading from localStorage
-        return tasks.map((task: any) => ({
-          ...task,
-          status: typeof task.status === 'string' ? this.mapStringToStatus(task.status) : task.status,
-          category: typeof task.category === 'string' ? this.mapStringToCategory(task.category) : task.category,
-        }));
-      }
-    } catch (error) {
-      console.error('Error loading tasks from localStorage:', error);
-    }
-    return [];
   }
 
   // Export tasks as JSON (for download)
@@ -493,13 +355,13 @@ export class TaskService {
   // Clear all tasks and localStorage
   clearAllTasks(): void {
     this.updateTasksView([]);
-    localStorage.removeItem('angular-tasker-tasks');
+    localStorage.removeItem(this.STORAGE_KEY);
   }
 
-  // Reset to original JSON file data
+  // Reset to default data
   resetToOriginalData(): void {
     this.hasInitialized = false;
-    localStorage.removeItem('angular-tasker-tasks');
-    this.loadTasksFromJson();
+    localStorage.removeItem(this.STORAGE_KEY);
+    this.loadTasksFromStorage();
   }
 }

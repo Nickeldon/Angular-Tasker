@@ -2,109 +2,160 @@
   {
     "id": 1,
     "title": "Buy groceries",
-    "status": "In-Progress",
-    "category": "Personal",
     "description": "Get ingredients for dinner this week",
+    "status": "To-do",
+    "category": "Personal",
     "dueDate": "2025-07-02",
-    "Tags": ["shopping", "food"]
+    "Tags": [
+      "shopping",
+      "food"
+    ],
+    "archived": false
   },
   {
     "id": 2,
     "title": "Walk the dog",
+    "description": "Morning walk in the park",
     "status": "To-do",
     "category": "Personal",
-    "description": "Morning walk in the park",
     "dueDate": "2025-07-02",
-    "Tags": ["exercise", "pet"]
+    "Tags": [
+      "exercise",
+      "pet"
+    ],
+    "archived": false
   },
   {
     "id": 3,
     "title": "Complete project report",
+    "description": "Finish quarterly report for management",
     "status": "In-Progress",
     "category": "Work",
-    "description": "Finish quarterly report for management",
     "dueDate": "2025-07-05",
-    "Tags": ["work", "report"]
+    "Tags": [
+      "work",
+      "report"
+    ],
+    "archived": false
   },
   {
     "id": 4,
     "title": "Schedule dentist appointment",
+    "description": "Book appointment for teeth cleaning",
     "status": "To-do",
     "category": "Personal",
-    "description": "Book appointment for teeth cleaning",
     "dueDate": "2025-07-10",
-    "Tags": ["health", "appointment"]
+    "Tags": [
+      "health",
+      "appointment"
+    ],
+    "archived": false
   },
   {
     "id": 5,
     "title": "Review code changes",
+    "description": "Review pull requests from team members",
     "status": "To-do",
     "category": "Work",
-    "description": "Review pull requests from team members",
     "dueDate": "2025-07-03",
-    "Tags": ["code", "review", "work"]
+    "Tags": [
+      "code",
+      "review",
+      "work"
+    ],
+    "archived": false
   },
   {
     "id": 6,
     "title": "Plan weekend trip",
+    "description": "Research destinations and book accommodation",
     "status": "To-do",
     "category": "Personal",
-    "description": "Research destinations and book accommodation",
     "dueDate": "2025-07-08",
-    "Tags": ["travel", "planning", "weekend"]
+    "Tags": [
+      "travel",
+      "planning",
+      "weekend"
+    ],
+    "archived": false
   },
   {
     "id": 7,
     "title": "Fix urgent bug",
+    "description": "Critical bug affecting user login",
     "status": "In-Progress",
     "category": "Urgent",
-    "description": "Critical bug affecting user login",
     "dueDate": "2025-07-02",
-    "Tags": ["urgent", "bug", "login"]
+    "Tags": [
+      "urgent",
+      "bug",
+      "login"
+    ],
+    "archived": false
   },
   {
     "id": 8,
     "title": "Organize workspace",
+    "description": "Clean and organize desk area",
     "status": "To-do",
     "category": "Other",
-    "description": "Clean and organize desk area",
     "dueDate": "2025-07-04",
-    "Tags": ["organization", "workspace"]
+    "Tags": [
+      "organization",
+      "workspace"
+    ],
+    "archived": false
   },
   {
     "id": 9,
     "title": "Prepare presentation",
+    "description": "Create slides for next week's meeting",
     "status": "To-do",
     "category": "Work",
-    "description": "Create slides for next week's meeting",
     "dueDate": "2025-07-06",
-    "Tags": ["presentation", "meeting"]
+    "Tags": [
+      "presentation",
+      "meeting"
+    ],
+    "archived": false
   },
   {
     "id": 10,
     "title": "Read new book",
+    "description": "Start reading 'The Great Gatsby'",
     "status": "To-do",
     "category": "Personal",
-    "description": "Start reading 'The Great Gatsby'",
     "dueDate": "2025-07-01",
-    "Tags": ["reading", "book"]
+    "Tags": [
+      "reading",
+      "book"
+    ],
+    "archived": false
   },
   {
     "id": 11,
     "title": "Attend yoga class",
+    "description": "Join evening yoga session at the studio",
     "status": "To-do",
     "category": "Personal",
-    "description": "Join evening yoga session at the studio",
     "dueDate": "2025-07-03",
-    "Tags": ["yoga", "exercise"]
+    "Tags": [
+      "yoga",
+      "exercise"
+    ],
+    "archived": false
   },
   {
     "id": 12,
     "title": "Update resume",
-    "status": "To-do",
-    "category": "Career",
     "description": "Revise resume for job applications",
+    "status": "To-do",
+    "category": "Personal",
     "dueDate": "2025-07-07",
-    "Tags": ["career", "resume"]
+    "Tags": [
+      "career",
+      "resume"
+    ],
+    "archived": false
   }
 ]
