@@ -70,5 +70,41 @@
     "description": "Clean and organize desk area",
     "dueDate": "2025-07-04",
     "Tags": ["organization", "workspace"]
+  },
+  {
+    "id": 9,
+    "title": "Prepare presentation",
+    "status": "To-do",
+    "category": "Work",
+    "description": "Create slides for next week's meeting",
+    "dueDate": "2025-07-06",
+    "Tags": ["presentation", "meeting"]
+  },
+  {
+    "id": 10,
+    "title": "Read new book",
+    "status": "To-do",
+    "category": "Personal",
+    "description": "Start reading 'The Great Gatsby'",
+    "dueDate": "2025-07-01",
+    "Tags": ["reading", "book"]
+  },
+  {
+    "id": 11,
+    "title": "Attend yoga class",
+    "status": "To-do",
+    "category": "Personal",
+    "description": "Join evening yoga session at the studio",
+    "dueDate": "2025-07-03",
+    "Tags": ["yoga", "exercise"]
+  },
+  {
+    "id": 12,
+    "title": "Update resume",
+    "status": "To-do",
+    "category": "Career",
+    "description": "Revise resume for job applications",
+    "dueDate": "2025-07-07",
+    "Tags": ["career", "resume"]
   }
 ]

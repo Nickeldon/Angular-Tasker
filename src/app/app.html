@@ -43,7 +43,7 @@
     style="display: flex; flex-direction: column; height: 100%; padding: 10px"
   >
     <div class="leftSubSection" id="tasks-section">
-      <app-task-navigation></app-task-navigation>
+      <app-task-navigation (filterChanged)="onFilterChanged($event)"></app-task-navigation>
     </div>
   </div>
   <div

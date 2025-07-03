@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { TaskComponent, Task, Status, Category } from '../task/task';
 import { TaskService } from '../../services/task.service';
+import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-task-section',
@@ -216,6 +217,7 @@ import { TaskService } from '../../services/task.service';
     MatSelectModule,
     FormsModule,
     TaskComponent,
+    MatDialogModule
   ],
 })
 export class TaskSectionComponent {
@@ -225,7 +227,7 @@ export class TaskSectionComponent {
   categoryEnum = Category;
   statusEnum = Status;
 
-  constructor(private taskService: TaskService) {}
+  constructor(private taskService: TaskService, private dialog: MatDialog) {}
 
   newTask: Partial<Task> = {
     title: '',
@@ -286,6 +288,20 @@ export class TaskSectionComponent {
     this.taskService.unarchiveTask(taskId);
   }
 
+  openEditDialog(task: Task) {
+    const dialogRef = this.dialog.open(TaskEditDialogComponent, {
+      data: task,
+      width: '600px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Update task in the service
+        this.taskService.updateTask(result);
+      }
+    });
+  }
+
   private resetNewTask() {
     this.newTask = {
       title: '',
@@ -296,5 +312,130 @@ export class TaskSectionComponent {
       status: Status['To-do'],
       archived: false,
     };
+  }
+}
+
+@Component({
+  selector: 'app-task-edit-dialog',
+  template: `
+    <h2 mat-dialog-title>Edit Task</h2>
+    <div mat-dialog-content>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Task Title</mat-label>
+          <input
+            matInput
+            [(ngModel)]="task.title"
+            placeholder="Enter task title"
+            required
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Category</mat-label>
+          <mat-select [(ngModel)]="task.category">
+            <mat-option [value]="categoryEnum.Work">Work</mat-option>
+            <mat-option [value]="categoryEnum.Personal">Personal</mat-option>
+            <mat-option [value]="categoryEnum.Urgent">Urgent</mat-option>
+            <mat-option [value]="categoryEnum.Other">Other</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="task.status">
+            <mat-option [value]="statusEnum['To-do']">To-do</mat-option>
+            <mat-option [value]="statusEnum['In-Progress']">In-Progress</mat-option>
+            <mat-option [value]="statusEnum['Complete']">Complete</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Due Date</mat-label>
+          <input matInput type="date" [(ngModel)]="task.dueDate" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="task.description"
+          placeholder="Task description"
+          rows="3"
+        ></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Tags (comma-separated)</mat-label>
+        <input
+          matInput
+          [(ngModel)]="tagsString"
+          placeholder="e.g., work, urgent, review"
+        />
+      </mat-form-field>
+    </div>
+
+    <div mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!task.title?.trim()">
+        Save Changes
+      </button>
+    </div>
+  `,
+  styles: [`
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-field {
+      flex: 1;
+    }
+    mat-dialog-content {
+      min-width: 500px;
+    }
+  `],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormsModule
+  ]
+})
+export class TaskEditDialogComponent {
+  task: Task;
+  tagsString: string;
+  categoryEnum = Category;
+  statusEnum = Status;
+
+  constructor(
+    public dialogRef: MatDialogRef<TaskEditDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Task
+  ) {
+    this.task = { ...data };
+    this.tagsString = this.task.Tags?.join(', ') || '';
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+
+  onSave(): void {
+    if (this.task.title?.trim()) {
+      // Parse tags from string
+      this.task.Tags = this.tagsString
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+
+      this.dialogRef.close(this.task);
+    }
   }
 }

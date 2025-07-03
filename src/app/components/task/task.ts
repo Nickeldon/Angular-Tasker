@@ -37,7 +37,7 @@ export interface Task {
         [checked]="task.status === statusEnum.Complete"
         (change)="onStatusChange($event)">
       </mat-checkbox>
-      <div class="task-content">
+      <div class="task-content" (click)="onEdit()">
         <div class="task-title">{{ task.title }}</div>
         <div class="task-meta">
           <span class="task-category">{{ getCategoryName(task.category) }}</span>
@@ -47,6 +47,9 @@ export interface Task {
         </div>
       </div>
       <div class="task-actions">
+        <button mat-icon-button class="edit-btn" (click)="onEdit()" title="Edit task">
+          <mat-icon>edit</mat-icon>
+        </button>
         <button mat-icon-button class="archive-btn" (click)="onArchive()" *ngIf="!task.archived" title="Archive task">
           <mat-icon>archive</mat-icon>
         </button>
@@ -171,6 +174,7 @@ export class TaskComponent {
   @Output() taskStatusChanged = new EventEmitter<{id: number, status: Status}>();
   @Output() taskArchived = new EventEmitter<number>();
   @Output() taskUnarchived = new EventEmitter<number>();
+  @Output() taskEditRequested = new EventEmitter<Task>();
 
   statusEnum = Status;
 
@@ -189,6 +193,10 @@ export class TaskComponent {
 
   onUnarchive() {
     this.taskUnarchived.emit(this.task.id);
+  }
+
+  onEdit() {
+    this.taskEditRequested.emit(this.task);
   }
 
   getCategoryName(category: Category): string {
