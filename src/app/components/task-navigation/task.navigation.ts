@@ -106,13 +106,8 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
         </div>
       </mat-sidenav>
       <mat-sidenav-content>
-        <div class="settings-overlay"
-             *ngIf="showSettings"
-             [class.show]="showSettings"
-             (click)="closeSettings()">
-          <div class="settings-wrapper"
-               [class.show]="showSettings"
-               (click)="$event.stopPropagation()">
+        <div class="settings-overlay" *ngIf="showSettings" (click)="closeSettings()">
+          <div class="settings-wrapper" (click)="$event.stopPropagation()">
             <app-task-settings (close)="closeSettings()"></app-task-settings>
           </div>
         </div>
