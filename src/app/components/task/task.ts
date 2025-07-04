@@ -16,7 +16,7 @@ export enum Category {
   'Personal',
   'Work',
   'Urgent',
-  'Other'
+  'Other',
 }
 
 export interface Task {
@@ -63,24 +63,26 @@ export interface Task {
         >
           <mat-icon>edit</mat-icon>
         </button>
+        @if (!task.archived) {
         <button
           mat-icon-button
           class="archive-btn"
           (click)="onArchive()"
-          *ngIf="!task.archived"
           title="Archive task"
         >
           <mat-icon>archive</mat-icon>
         </button>
+        } @else {
         <button
           mat-icon-button
           class="unarchive-btn"
           (click)="onUnarchive()"
-          *ngIf="task.archived"
           title="Unarchive task"
         >
           <mat-icon>unarchive</mat-icon>
         </button>
+        }
+
         <button
           mat-icon-button
           class="delete-btn"
@@ -92,108 +94,7 @@ export interface Task {
       </div>
     </div>
   `,
-  styles: [
-    `
-      .task-item {
-        display: flex;
-        align-items: center;
-        border: 1px solid #e0e0e0;
-        padding: 16px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        background: rgba(245, 245, 245, 0.17);
-        transition: background 0.2s, box-shadow 0.2s;
-        gap: 12px;
-      }
-
-      .task-item:hover {
-        background: #e3f2fd;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .task-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .task-title {
-        font-weight: 500;
-        font-size: 16px;
-        color: #333;
-      }
-
-      .task-meta {
-        display: flex;
-        gap: 12px;
-        font-size: 12px;
-        color: #666;
-      }
-
-      .task-category {
-        background: #e3f2fd;
-        padding: 2px 8px;
-        border-radius: 12px;
-        color: #1976d2;
-      }
-
-      .task-status {
-        background: #f3e5f5;
-        padding: 2px 8px;
-        border-radius: 12px;
-        color: #7b1fa2;
-      }
-
-      .task-due-date {
-        color: #666;
-      }
-
-      .task-archived {
-        background: #ffecb3;
-        padding: 2px 8px;
-        border-radius: 12px;
-        color: #f57c00;
-        font-weight: 500;
-        text-transform: uppercase;
-        font-size: 10px;
-      }
-
-      .task-actions {
-        display: flex;
-        gap: 4px;
-      }
-
-      .delete-btn {
-        color: #f44336;
-      }
-
-      .delete-btn:hover {
-        background: rgba(244, 67, 54, 0.1);
-      }
-
-      .archive-btn {
-        color: #ff9800;
-      }
-
-      .archive-btn:hover {
-        background: rgba(255, 152, 0, 0.1);
-      }
-
-      .unarchive-btn {
-        color: #4caf50;
-      }
-
-      .unarchive-btn:hover {
-        background: rgba(76, 175, 80, 0.1);
-      }
-
-      .task-item.archived {
-        opacity: 0.7;
-        background: #f5f5f5;
-      }
-    `,
-  ],
+  styleUrls: ['./task.css'],
   standalone: true,
   imports: [
     MatCheckboxModule,
@@ -229,10 +130,14 @@ export class TaskComponent {
   }
 
   onArchive() {
+    console.log('Archiving task:', this.task.id);
+    this.task.archived = true; // Update the task's archived status
     this.taskArchived.emit(this.task.id);
   }
 
   onUnarchive() {
+    console.log('Unarchiving task:', this.task.id);
+    this.task.archived = false; // Update the task's archived status
     this.taskUnarchived.emit(this.task.id);
   }
 

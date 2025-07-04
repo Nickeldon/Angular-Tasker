@@ -37,6 +37,7 @@ export class App implements OnInit {
 
   // Handle filter changes from navigation
   onFilterChanged(filter: { type: string; value: any }) {
+    console.log('Filter changed:', filter);
     this.currentFilter = filter;
     this.applyCurrentFilter();
   }
@@ -94,8 +95,14 @@ export class App implements OnInit {
           const today = new Date();
           return taskDate >= today;
         });
-      case 'calendar': // Does nothing, as this feature is not implemented yet
-      case 'sticky': // Does nothing, as this feature is not implemented yet
+      case 'overdue': {
+        // Return tasks that are overdue (With date match with today's date (in local timezone))
+        return this.taskService.getOverdueTasks();
+      }
+      case 'archived': {
+        // Return archived tasks
+        return this.taskService.getArchivedTasks();
+      } // Does nothing, as this feature is not implemented yet
       default:
         return this.taskService.getActiveTasks();
     }

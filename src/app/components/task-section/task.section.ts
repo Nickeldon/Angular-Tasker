@@ -242,8 +242,7 @@ export class TaskSectionComponent {
   selectDay: string | "Today" = 'Today';
 
   toggleAddForm() {
-    this.showAddForm = !this.showAddForm;
-    if (!this.showAddForm) {
+    if (!(this.showAddForm = !this.showAddForm)) {
       this.resetNewTask();
     }
   }

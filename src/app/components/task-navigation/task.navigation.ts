@@ -40,10 +40,10 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
         <div class="nav-section">
           <h3 class="section-title">TASKS</h3>
           <ul class="nav-list">
+            @for (task of taskItems; track $index) {
             <li
               class="nav-item"
               [class.active]="isActiveFilter('navigation', task.filter)"
-              *ngFor="let task of taskItems"
               (click)="onNavigationClick(task.filter)"
               [class.disabled]="task.disabled"
             >
@@ -51,6 +51,7 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
               <span class="nav-label">{{ task.label }}</span>
               <span class="nav-count" *ngIf="task.count">{{ task.count }}</span>
             </li>
+            }
           </ul>
         </div>
 
@@ -58,19 +59,22 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
         <div class="nav-section">
           <h3 class="section-title">LISTS</h3>
           <ul class="nav-list">
+            @for (elem of listItems; track $index) {
             <li
               class="nav-item"
-              [class.active]="isActiveFilter('category', list.category)"
-              *ngFor="let list of listItems"
-              (click)="onCategoryFilter(list.category)"
+              [class.active]="isActiveFilter('category', elem.category)"
+              (click)="onCategoryFilterClick(elem.category)"
             >
               <div
                 class="color-indicator"
-                [style.background-color]="list.color"
+                [style.background-color]="elem.color"
               ></div>
-              <span class="nav-label">{{ list.label }}</span>
-              <span class="nav-count" *ngIf="list.count">{{ list.count }}</span>
+              <span class="nav-label">{{ elem.label }}</span>
+              @if (elem.count) {
+              <span class="nav-count" *ngIf="elem.count">{{ elem.count }}</span>
+              }
             </li>
+            }
             <li class="nav-item add-item">
               <mat-icon class="nav-icon">add</mat-icon>
               <span class="nav-label">Add New List</span>
@@ -82,20 +86,21 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
         <div class="nav-section">
           <h3 class="section-title">TAGS</h3>
           <div class="tags-container">
+            @for (tag of tags; track $index) {
             <span
               class="tag"
               [class.active]="isActiveFilter('tag', tag)"
-              *ngFor="let tag of tags"
-              (click)="onTagFilter(tag)"
+              (click)="onTagFilterClick(tag)"
               >{{ tag }}</span
             >
-            <span class="add-tag">+ Add Tag</span>
+            }
+            <span class="add-tag" (click)="showAddTag()">+ Add Tag</span>
           </div>
         </div>
 
         <!-- Bottom Section -->
         <div class="sidebar-bottom">
-          <div class="nav-item" (click)="onSettingClick()">
+          <div class="nav-item" (click)="showSettings = true">
             <mat-icon class="nav-icon">settings</mat-icon>
             <span class="nav-label">Settings</span>
           </div>
@@ -105,288 +110,22 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
           </div>
         </div>
       </mat-sidenav>
+
       <mat-sidenav-content>
-        <div class="settings-overlay" *ngIf="showSettings" (click)="closeSettings()">
+        @if (showSettings) {
+        <div class="settings-overlay" (click)="showSettings = false">
           <div class="settings-wrapper" (click)="$event.stopPropagation()">
-            <app-task-settings (close)="closeSettings()"></app-task-settings>
+            <app-task-settings
+              (close)="showSettings = false"
+            ></app-task-settings>
           </div>
         </div>
+        }
         <ng-content></ng-content>
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: [
-    `
-      .sidebar {
-        width: 280px;
-        background: #f8f9fa;
-        padding: 0;
-        border-right: 1px solid #e9ecef;
-        height: 100%;
-        display: flex;
-        border-radius: 20px;
-      }
-
-      .sidebar mat-icon {
-        margin-bottom: -9px;
-      }
-
-      .sidebar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 20px 10px;
-        padding: 16px 20px;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .sidebar-header h2 {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 500;
-        color: #343a40;
-      }
-
-      .sidebar-header button {
-        background: transparent;
-        border: none;
-        color: #6c757d;
-        cursor: pointer;
-      }
-
-      .search-section {
-        padding: 16px 20px;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .search-input {
-        display: flex;
-        align-items: center;
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        padding: 8px 12px;
-      }
-
-      .search-icon {
-        color: #6c757d;
-        margin-right: 8px;
-        font-size: 18px;
-      }
-
-      .search-input input {
-        border: none;
-        outline: none;
-        flex: 1;
-        font-size: 14px;
-        color: #495057;
-      }
-
-      .search-input input::placeholder {
-        color: #6c757d;
-      }
-
-      .nav-section {
-        padding: 16px 0;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .section-title {
-        font-size: 11px;
-        font-weight: 600;
-        color: #6c757d;
-        margin: 0 0 12px 20px;
-        letter-spacing: 0.5px;
-      }
-
-      .nav-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      .nav-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        padding: 12px 20px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        margin: 2px 8px;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .nav-item::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-        opacity: 0;
-        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 8px;
-        z-index: -1;
-      }
-
-      .nav-item:hover {
-        background-color: #e9ecef;
-        transform: translateX(4px);
-      }
-
-      .nav-item.active::before {
-        opacity: 1;
-      }
-
-      .nav-item.active {
-        color: white;
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-        transform: translateX(4px);
-      }
-
-      .nav-item.active .nav-label {
-        color: white;
-        font-weight: 500;
-      }
-
-      .nav-item.active .nav-icon {
-        color: white;
-      }
-
-      .nav-item.active .nav-count {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-
-      .nav-icon {
-        font-size: 18px;
-        color: #6c757d;
-        padding: 0;
-        margin: 0;
-        margin-right: 12px;
-        width: 18px;
-      }
-
-      .color-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
-        margin-right: 12px;
-      }
-
-      .nav-label {
-        flex: 1;
-        font-size: 14px;
-        color: #495057;
-      }
-
-      .nav-count {
-        font-size: 12px;
-        color: #6c757d;
-        background: #e9ecef;
-        padding: 2px 6px;
-        border-radius: 10px;
-        min-width: 16px;
-        text-align: center;
-      }
-
-      .add-item .nav-label {
-        color: #6c757d;
-      }
-
-      .tags-container {
-        padding: 0 20px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .tag {
-        background: #e9ecef;
-        color: #495057;
-        padding: 6px 12px;
-        border-radius: 16px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid transparent;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .tag::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
-        opacity: 0;
-        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 16px;
-        z-index: -1;
-      }
-
-      .tag:hover {
-        background: #dee2e6;
-        transform: translateY(-2px);
-      }
-
-      .tag.active::before {
-        opacity: 1;
-      }
-
-      .tag.active {
-        color: white;
-        box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
-        transform: translateY(-2px);
-      }
-
-      .add-tag {
-        color: #6c757d;
-        font-size: 12px;
-        cursor: pointer;
-      }
-
-      .sidebar-bottom {
-        margin-top: auto;
-        padding: 16px 0;
-      }
-
-      .sidebar-bottom .nav-item {
-        padding: 12px 20px;
-      }
-
-      mat-sidenav-container {
-        height: 100vh;
-      }
-
-      .settings-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        transition: all 0.3s ease;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(4px);
-      }
-
-      .settings-wrapper {
-        max-width: 90vw;
-        max-height: 90vh;
-        overflow: auto;
-      }
-    `,
-  ],
+  styleUrls: ['./task.navigation.css'],
   standalone: true,
   imports: [
     MatSidenav,
@@ -399,11 +138,12 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
   ],
 })
 export class TaskNavigationComponent implements OnInit {
+  // In order to send to an update attribute to the parent everytime a filter is pressed / added / changed
   @Output() filterChanged = new EventEmitter<{ type: string; value: any }>();
 
-  searchTerm = '';
-  activeFilter: { type: string; value: any } | null = null;
-  showSettings = false;
+  searchTerm = ''; // To keep the search updated globally in the component
+  activeFilter: { type: string; value: any } | null = null; // Which filter is pressed
+  showSettings = false; // Boolean to know whether the settings should be displayed or not
 
   taskItems = [
     {
@@ -421,36 +161,37 @@ export class TaskNavigationComponent implements OnInit {
       disabled: false,
     },
     {
-      icon: 'calendar_today',
-      label: 'Calendar',
-      filter: 'calendar',
-      disabled: true,
+      // Optional, was just included to the design a chose, will be changed later
+      icon: 'assignment_late',
+      label: 'Overdue',
+      filter: 'overdue',
+      count: 0,
+      disabled: false,
     },
     {
-      icon: 'push_pin',
-      label: 'Sticky Wall',
-      filter: 'sticky',
-      disabled: true,
+      // Optional, was just included to the design a chose, will be changed later
+      icon: 'archive',
+      label: 'Archived',
+      filter: 'archived',
+      count: 0,
+      disabled: false,
     },
   ];
 
   listItems = [
-    {
-      color: '#dc3545',
-      label: 'Personal',
-      count: 0,
-      category: Category.Personal,
-    },
+    //prettier-ignore
+    { color: '#dc3545', label: 'Personal', count: 0, category: Category.Personal },
     { color: '#0d6efd', label: 'Work', count: 0, category: Category.Work },
     { color: '#ffc107', label: 'Urgent', count: 0, category: Category.Urgent },
     { color: '#6c757d', label: 'Other', count: 0, category: Category.Other },
   ];
 
-  tags: string[] = [];
+  tags: Set<string> = new Set(); // All tags from the tasks
 
   constructor(private taskService: TaskService) {}
 
   ngOnInit() {
+    // When the component is initialized
     this.updateCounts();
     this.updateTags();
 
@@ -464,75 +205,87 @@ export class TaskNavigationComponent implements OnInit {
   private updateCounts() {
     const stats = this.taskService.getTaskStats();
     const todayTasks = this.taskService.getTodaysTasks();
+    const overdueTasks = this.taskService.getOverdueTasks();
+    const archivedTasks = this.taskService.getArchivedTasks();
 
     // Update task counts
-    this.taskItems[0].count = stats.inProgress + stats.todo; // Upcoming
     this.taskItems[1].count = todayTasks.length; // Today
+    this.taskItems[2].count = overdueTasks.length; // Overdue
+    this.taskItems[0].count =
+      stats.inProgress + stats.todo - todayTasks.length - overdueTasks.length; // Upcoming
+    this.taskItems[3].count = archivedTasks.length; // Archived
 
     // Update category counts
-    this.listItems[0].count = this.taskService.getTasksByCategory(
-      Category.Personal
-    ).length;
-    this.listItems[1].count = this.taskService.getTasksByCategory(
-      Category.Work
-    ).length;
-    this.listItems[2].count = this.taskService.getTasksByCategory(
-      Category.Urgent
-    ).length;
-    this.listItems[3].count = this.taskService.getTasksByCategory(
-      Category.Other
-    ).length;
+    this.listItems.forEach((item, i) => {
+      item.count = this.taskService.getTasksByCategory(item.category).length;
+    });
   }
 
   private updateTags() {
     const allTasks = this.taskService.getActiveTasks();
-    const tagSet = new Set<string>();
+    const tagSet = new Set<string>(); // To prevent duplicates
 
     allTasks.forEach((task) => {
       if (task.Tags) {
+        // Go over all taks and add the tags to the set
         task.Tags.forEach((tag) => tagSet.add(tag));
       }
     });
 
-    this.tags = Array.from(tagSet);
+    this.tags = tagSet; // update the tags array with unique tags
   }
 
   onNavigationClick(filter: string) {
-    this.activeFilter = { type: 'navigation', value: filter };
-    this.filterChanged.emit({ type: 'navigation', value: filter });
-  }
-  onSettingClick() {
-    this.showSettings = true;
-  }
-
-  closeSettings() {
-    this.showSettings = false;
-  }
-
-  onCategoryFilter(category: Category) {
-    this.activeFilter = { type: 'category', value: category };
-    this.filterChanged.emit({ type: 'category', value: category });
+    if (this.isActiveFilter('navigation', filter)) {
+      console.log('Clearing filter');
+      this.activeFilter = null; // Clear the filter if the same filter is clicked again
+      this.filterChanged.emit({ type: 'clear', value: null });
+      return;
+    }
+    this.activeFilter = { type: 'navigation', value: filter }; // Change filter
+    this.filterChanged.emit({ type: 'navigation', value: filter }); // Call the parent (app.ts) that the filter has changed
   }
 
-  onTagFilter(tag: string) {
-    this.activeFilter = { type: 'tag', value: tag };
-    this.filterChanged.emit({ type: 'tag', value: tag });
+  onCategoryFilterClick(category: Category) {
+    if (this.isActiveFilter('category', category)) {
+      this.activeFilter = null; // Clear the filter if the same filter is clicked again
+      this.filterChanged.emit({ type: 'clear', value: null });
+      return;
+    }
+    this.activeFilter = { type: 'category', value: category }; // Change filter
+    this.filterChanged.emit({ type: 'category', value: category }); // Call the parent (app.ts) that the filter has changed
   }
+
+  onTagFilterClick(tag: string) {
+    if (this.isActiveFilter('tag', tag)) {
+      this.activeFilter = null; // Clear the filter if the same filter is clicked again
+      this.filterChanged.emit({ type: 'clear', value: null });
+      return;
+    }
+    this.activeFilter = { type: 'tag', value: tag }; // Change filter
+    this.filterChanged.emit({ type: 'tag', value: tag }); // Call the parent (app.ts) that the filter has changed
+  }
+
+  showAddTag() {}
 
   onSearch() {
-    if (this.searchTerm.trim()) {
-      this.activeFilter = { type: 'search', value: this.searchTerm.trim() };
+    const trimTerm = this.searchTerm.trim();
+    if (trimTerm) {
+      // Remove white space
+      this.activeFilter = { type: 'search', value: trimTerm }; // Change the active filter
       this.filterChanged.emit({
+        // Call the parent (app.ts) that the filter has changed (Will remove any previous filter)
         type: 'search',
-        value: this.searchTerm.trim(),
+        value: trimTerm,
       });
     } else {
       this.activeFilter = null;
-      this.filterChanged.emit({ type: 'clear', value: null });
+      this.filterChanged.emit({ type: 'clear', value: null }); // If the input is empty, clear the filter
     }
   }
 
-  isActiveFilter(type: string, value: any): boolean {
+  isActiveFilter(type: 'navigation' | 'tag' | 'category', value: any): boolean {
+    // Verify if filter x is active
     return (
       this.activeFilter?.type === type && this.activeFilter?.value === value
     );

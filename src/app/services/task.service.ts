@@ -131,8 +131,14 @@ export class TaskService {
         // Ensure proper enum mapping when loading from localStorage
         return tasks.map((task: any) => ({
           ...task,
-          status: typeof task.status === 'string' ? this.mapStringToStatus(task.status) : task.status,
-          category: typeof task.category === 'string' ? this.mapStringToCategory(task.category) : task.category,
+          status:
+            typeof task.status === 'string'
+              ? this.mapStringToStatus(task.status)
+              : task.status,
+          category:
+            typeof task.category === 'string'
+              ? this.mapStringToCategory(task.category)
+              : task.category,
         }));
       }
     } catch (error) {
@@ -172,20 +178,29 @@ export class TaskService {
   }
   private getStatusString(status: Status): string {
     switch (status) {
-      case Status['To-do']: return 'To-do';
-      case Status['In-Progress']: return 'In-Progress';
-      case Status['Complete']: return 'Complete';
-      default: return 'To-do';
+      case Status['To-do']:
+        return 'To-do';
+      case Status['In-Progress']:
+        return 'In-Progress';
+      case Status['Complete']:
+        return 'Complete';
+      default:
+        return 'To-do';
     }
   }
 
   private getCategoryString(category: Category): string {
     switch (category) {
-      case Category.Work: return 'Work';
-      case Category.Personal: return 'Personal';
-      case Category.Urgent: return 'Urgent';
-      case Category.Other: return 'Other';
-      default: return 'Personal';
+      case Category.Work:
+        return 'Work';
+      case Category.Personal:
+        return 'Personal';
+      case Category.Urgent:
+        return 'Urgent';
+      case Category.Other:
+        return 'Other';
+      default:
+        return 'Personal';
     }
   }
 
@@ -308,6 +323,15 @@ export class TaskService {
     const today = new Date().toISOString().split('T')[0];
     const tasks = includeArchived ? this.getTasks() : this.getActiveTasks();
     return tasks.filter((task) => task.dueDate === today);
+  }
+
+  getOverdueTasks(includeArchived: boolean = false): Task[] {
+    const today = new Date().toISOString().split('T')[0];
+    const tasks = includeArchived ? this.getTasks() : this.getActiveTasks();
+    return tasks.filter((task) => {
+      const dueDate = new Date(task.dueDate);
+      return dueDate < new Date(today) && !task.archived;
+    });
   }
 
   // Get tasks by tags (excluding archived by default)
