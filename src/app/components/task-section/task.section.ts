@@ -8,7 +8,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { TaskComponent, Task, Status, Category } from '../task/task';
 import { TaskService } from '../../services/task.service';
-import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialogModule,
+  MatDialog,
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-task-section',
@@ -18,7 +23,7 @@ import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angu
         <h1 style="display: flex; align-items: center; gap: 20px;">
           <mat-icon>calendar_today</mat-icon>
           {{ selectDay }}
-        <!-- {{ (selectDay === 'Today' ? 'Today\'s Tasks' : selectDay + ' Tasks') }} -->
+          <!-- {{ (selectDay === 'Today' ? 'Today's Tasks' : selectDay + ' Tasks') }} -->
         </h1>
       </div>
       <div class="section-header">
@@ -91,11 +96,12 @@ import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angu
 
       <!-- Task List -->
       <div class="tasks-container">
-        <div *ngIf="tasks.length === 0" class="no-tasks">
+        @if(tasks.length == 0) {
+        <div class="no-tasks">
           <mat-icon>task_alt</mat-icon>
           <p>No tasks yet. Add your first task!</p>
         </div>
-
+        }
         <app-task
           *ngFor="let task of tasks"
           [task]="task"
@@ -103,110 +109,13 @@ import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angu
           (taskStatusChanged)="updateTaskStatus($event)"
           (taskArchived)="archiveTask($event)"
           (taskUnarchived)="unarchiveTask($event)"
+          (taskUpdated)="updateTask($event)"
         >
         </app-task>
       </div>
     </div>
   `,
-  styles: [
-    `
-
-      .section-select-day {
-        justify-content: center;
-        padding: 10px;
-        margin-bottom: 20px;
-      }
-
-      .task-section {
-        padding: 20px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      .section-header h2 {
-        margin: 0;
-        color: #333;
-        font-size: 24px;
-        font-weight: 500;
-      }
-
-      .add-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .add-task-form-container {
-        height: 0;
-        overflow: hidden;
-        transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        margin-bottom: 0;
-      }
-
-      .add-task-form-container.expanded {
-        height: auto;
-        margin-bottom: 20px;
-      }
-
-      .add-task-form {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-      }
-
-      .form-row {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 16px;
-      }
-
-      .form-field {
-        flex: 1;
-      }
-
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
-
-      .tasks-container {
-        max-height: 600px;
-        overflow-y: auto;
-      }
-
-      .no-tasks {
-        text-align: center;
-        padding: 40px;
-        color: #666;
-      }
-
-      .no-tasks mat-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        color: #ccc;
-        margin-bottom: 16px;
-      }
-
-      .no-tasks p {
-        font-size: 16px;
-        margin: 0;
-      }
-    `,
-  ],
+  styleUrls: ['./task.section.css'],
   standalone: true,
   imports: [
     CommonModule,
@@ -217,7 +126,7 @@ import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angu
     MatSelectModule,
     FormsModule,
     TaskComponent,
-    MatDialogModule
+    MatDialogModule,
   ],
 })
 export class TaskSectionComponent {
@@ -239,7 +148,7 @@ export class TaskSectionComponent {
     archived: false,
   };
 
-  selectDay: string | "Today" = 'Today';
+  selectDay: string | 'Today' = 'Today';
 
   toggleAddForm() {
     if (!(this.showAddForm = !this.showAddForm)) {
@@ -249,8 +158,8 @@ export class TaskSectionComponent {
 
   addTask() {
     if (this.newTask.title?.trim()) {
-        console.log('Adding task:', this.newTask);
-        console.log(Category)
+      console.log('Adding task:', this.newTask);
+      console.log(Category);
       const task: Task = {
         id: this.taskService.generateId(),
         title: this.newTask.title,
@@ -289,13 +198,17 @@ export class TaskSectionComponent {
     this.taskService.unarchiveTask(taskId);
   }
 
+  updateTask(updatedTask: Task) {
+    this.taskService.updateTask(updatedTask);
+  }
+
   openEditDialog(task: Task) {
     const dialogRef = this.dialog.open(TaskEditDialogComponent, {
       data: task,
       width: '600px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         // Update task in the service
         this.taskService.updateTask(result);
@@ -348,7 +261,9 @@ export class TaskSectionComponent {
           <mat-label>Status</mat-label>
           <mat-select [(ngModel)]="task.status">
             <mat-option [value]="statusEnum['To-do']">To-do</mat-option>
-            <mat-option [value]="statusEnum['In-Progress']">In-Progress</mat-option>
+            <mat-option [value]="statusEnum['In-Progress']"
+              >In-Progress</mat-option
+            >
             <mat-option [value]="statusEnum['Complete']">Complete</mat-option>
           </mat-select>
         </mat-form-field>
@@ -381,24 +296,31 @@ export class TaskSectionComponent {
 
     <div mat-dialog-actions align="end">
       <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!task.title.trim()">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSave()"
+        [disabled]="!task.title.trim()"
+      >
         Save Changes
       </button>
     </div>
   `,
-  styles: [`
-    .form-row {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .form-field {
-      flex: 1;
-    }
-    mat-dialog-content {
-      min-width: 500px;
-    }
-  `],
+  styles: [
+    `
+      .form-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .form-field {
+        flex: 1;
+      }
+      mat-dialog-content {
+        min-width: 500px;
+      }
+    `,
+  ],
   standalone: true,
   imports: [
     CommonModule,
@@ -407,8 +329,8 @@ export class TaskSectionComponent {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    FormsModule
-  ]
+    FormsModule,
+  ],
 })
 export class TaskEditDialogComponent {
   task: Task;
@@ -433,8 +355,8 @@ export class TaskEditDialogComponent {
       // Parse tags from string
       this.task.Tags = this.tagsString
         .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
 
       this.dialogRef.close(this.task);
     }

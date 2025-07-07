@@ -93,7 +93,15 @@ import { TaskSettingsComponent } from '../task-settings/task.settings';
               (click)="onTagFilterClick(tag)"
               >{{ tag }}</span
             >
-            }
+            } @if(addTagSelected) {
+            <input
+              type="text"
+              class="tag add-tag-input"
+              style="width: min-content;"
+              placeholder="Enter tag "
+              (blur)="addTagSelected = false"
+            />
+          }
             <span class="add-tag" (click)="showAddTag()">+ Add Tag</span>
           </div>
         </div>
@@ -144,6 +152,7 @@ export class TaskNavigationComponent implements OnInit {
   searchTerm = ''; // To keep the search updated globally in the component
   activeFilter: { type: string; value: any } | null = null; // Which filter is pressed
   showSettings = false; // Boolean to know whether the settings should be displayed or not
+  addTagSelected = false; // Boolean to know whether the add task button is selected or not
 
   taskItems = [
     {
@@ -266,7 +275,15 @@ export class TaskNavigationComponent implements OnInit {
     this.filterChanged.emit({ type: 'tag', value: tag }); // Call the parent (app.ts) that the filter has changed
   }
 
-  showAddTag() {}
+  showAddTag() {
+    this.addTagSelected = !this.addTagSelected; // Toggle the add tag input visibility
+    if (!this.addTagSelected) {
+      this.filterChanged.emit({ type: 'clear', value: null }); // Clear the filter if the add tag input is closed
+    } else {
+      this.searchTerm = ''; // Clear the search term when adding a new tag
+      this.activeFilter = null; // Clear any active filter
+    }
+  }
 
   onSearch() {
     const trimTerm = this.searchTerm.trim();
